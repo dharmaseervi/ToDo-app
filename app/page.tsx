@@ -7,11 +7,16 @@ import { useRouter } from 'next/navigation';
 export default function Home() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  
-  useEffect(() => {
-    if (status === 'authenticated') {
-      if (!session?.user?.approved) return;
 
+  useEffect(() => {
+    if (status === 'loading') return;
+
+    if (status === 'unauthenticated') {
+      router.replace('/login');
+      return;
+    }
+
+    if (session && session.user.approved) {
       if (session.user.role === 'admin') {
         router.replace('/admin');
       } else {
@@ -33,5 +38,5 @@ export default function Home() {
     );
   }
 
-  return null; // or a loader or blank screen
+  return null;
 }
