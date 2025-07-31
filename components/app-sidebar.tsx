@@ -5,9 +5,6 @@ import {
   IconDashboard,
   IconListDetails,
   IconUsers,
-  IconSettings,
-  IconHelp,
-  IconSearch,
   IconInnerShadowTop,
 } from "@tabler/icons-react"
 import {
@@ -20,7 +17,6 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
 import { NavMain } from "@/components/nav-main"
-import { NavSecondary } from "@/components/nav-secondary"
 import { NavUser } from "@/components/nav-user"
 
 export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {

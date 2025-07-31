@@ -3,9 +3,9 @@
 import { useEffect, useState } from "react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { CheckCircle2, XCircle } from "lucide-react"
 import { format, isToday, isPast, differenceInHours } from "date-fns"
 import { toast } from "sonner"
+import { socket } from "../../../socket"
 
 interface Todo {
   id: number
@@ -18,9 +18,39 @@ interface Todo {
 export default function UserTodosPage() {
   const [todos, setTodos] = useState<Todo[]>([])
   const [filter, setFilter] = useState<"all" | "completed" | "incomplete">("all")
+  const [isConnected, setIsConnected] = useState(false);
+  const [transport, setTransport] = useState("N/A");
 
-  console.log('todos:', todos);
-  
+
+  useEffect(() => {
+    if (socket.connected) {
+      onConnect();
+    }
+
+    function onConnect() {
+      setIsConnected(true);
+      setTransport(socket.io.engine.transport.name);
+
+      socket.io.engine.on("upgrade", (transport) => {
+        setTransport(transport.name);
+      });
+    }
+
+    function onDisconnect() {
+      setIsConnected(false);
+      setTransport("N/A");
+    }
+
+    socket.on("connect", onConnect);
+    socket.on("disconnect", onDisconnect);
+
+    return () => {
+      socket.off("connect", onConnect);
+      socket.off("disconnect", onDisconnect);
+    };
+  }, []);
+
+
   useEffect(() => {
     fetchTodos()
   }, [])
@@ -48,20 +78,17 @@ export default function UserTodosPage() {
 
   const handleToggleComplete = async (id: number, currentStatus: boolean) => {
     try {
-      await fetch(`/api/user/todos/${id}`, {
+      await fetch(`/api/users/todos/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ completed: !currentStatus }),
       })
 
-      // Notify admin (mock)
-      if (!currentStatus) {
-        await fetch("/api/notify/admin", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ todoId: id }),
-        })
-      }
+
+      socket.emit("task:completed", {
+        todoId: id,
+        message: `User completed task ID ${id}`
+      });
 
       fetchTodos()
     } catch (err) {
@@ -124,6 +151,7 @@ export default function UserTodosPage() {
                       size="sm"
                       variant="secondary"
                       onClick={() => handleToggleComplete(todo.id, todo.completed)}
+                      disabled={todo.completed}
                     >
                       {todo.completed ? "Mark Incomplete" : "Mark Complete"}
                     </Button>

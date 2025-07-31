@@ -17,7 +17,7 @@ export default function Home() {
       if (session.user.role === 'admin') {
         router.replace('/admin');
       } else {
-        router.replace('/user/todos');
+        router.replace('/user');
       }
     }
   }, [status, session, router]);
