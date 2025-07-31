@@ -7,9 +7,13 @@ import { authOptions } from '@/lib/auth'
 
 export async function GET() {
     const session = await getServerSession(authOptions)
-    if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-    const userTodos = await db.select().from(todos).where(eq(todos.user_id, session.user.id))
+    if (!session?.user || session.user.role !== 'admin') {
+        return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 403 })
+    }
+
+
+    const userTodos = await db.select().from(todos)
     return NextResponse.json({ todos: userTodos })
 }
 
@@ -17,7 +21,7 @@ export async function POST(req: Request) {
     const session = await getServerSession(authOptions)
     if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-    const { title, description, dueDate ,userId } = await req.json()
+    const { title, description, dueDate, userId } = await req.json()
 
     const parsedDueDate = dueDate ? new Date(dueDate) : null
 
