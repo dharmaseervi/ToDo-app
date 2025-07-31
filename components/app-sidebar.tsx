@@ -26,7 +26,6 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
   const navMain =
     role === "admin"
       ? [
-          { title: "Dashboard", url: "/admin/dashboard", icon: IconDashboard },
           { title: "Tasks", url: "/admin/task", icon: IconListDetails },
           { title: "Users", url: "/admin/users", icon: IconUsers },
         ]
