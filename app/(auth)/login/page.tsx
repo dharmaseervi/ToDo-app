@@ -80,14 +80,6 @@ function LoginPage() {
                         <Button type="submit" className="w-full" disabled={isSubmitting}>
                             {isSubmitting ? 'Logging in...' : 'Login'}
                         </Button>
-                        <Button
-                            type='button'
-                            className="mt-4 w-full"
-                            variant="outline"
-                            onClick={() => signIn('google')}
-                        >
-                            Login with Google
-                        </Button>
                         {error && (
                             <p className="text-sm text-red-500 mt-2">{error}</p>
                         )}

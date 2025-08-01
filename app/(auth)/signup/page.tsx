@@ -48,13 +48,7 @@ export default function SignupPage() {
                             Create Account
                         </Button>
                     </form>
-                    <Button
-                        className="mt-4 w-full"
-                        variant="outline"
-                        onClick={() => signIn('google')}
-                    >
-                        Sign up with Google
-                    </Button>
+              
                     <Button className='mt-4 w-full' variant="outline" onClick={() => router.push('/login')}>
                         <p className="text-blue-500 hover:underline">
                             Already have an account? Login

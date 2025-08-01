@@ -12,6 +12,10 @@ import {
 } from "@/components/ui/card"
 import { UsersIcon, ClipboardListIcon, BarChart3Icon, CheckCircle2 } from "lucide-react"
 import { Toaster } from "@/components/ui/sonner"
+import { Skeleton } from "@/components/ui/skeleton"
+import { pusherClient } from "@/lib/pusher/client"
+import { AdminNotificationListener } from "@/components/AdminNotificationListener"
+
 
 export default function Page() {
   const [userCount, setUserCount] = useState(0)
@@ -53,70 +57,88 @@ export default function Page() {
 
   return (
     <>
+   
       <AppSidebar variant="inset" />
       <SidebarInset>
         <SiteHeader />
         <div className="flex flex-1 flex-col p-4 space-y-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            {/* Total Users */}
             <Card>
               <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle>Total Users</CardTitle>
                 <UsersIcon className="w-5 h-5 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <p className="text-2xl font-semibold text-muted-foreground">
-                  {loading ? "..." : userCount}
-                </p>
+                {loading ? (
+                  <Skeleton className="h-6 w-12" />
+                ) : (
+                  <p className="text-2xl font-semibold text-muted-foreground">{userCount}</p>
+                )}
               </CardContent>
             </Card>
 
+            {/* Pending Todos */}
             <Card>
               <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle>Pending Todos</CardTitle>
                 <ClipboardListIcon className="w-5 h-5 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <p className="text-2xl font-semibold text-muted-foreground">
-                  {loading ? "..." : pendingCount}
-                </p>
+                {loading ? (
+                  <Skeleton className="h-6 w-12" />
+                ) : (
+                  <p className="text-2xl font-semibold text-muted-foreground">{pendingCount}</p>
+                )}
               </CardContent>
             </Card>
 
+            {/* Completed Todos */}
             <Card>
               <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle>Completed Todos</CardTitle>
                 <CheckCircle2 className="w-5 h-5 text-green-500" />
               </CardHeader>
               <CardContent>
-                <p className="text-2xl font-semibold text-muted-foreground">
-                  {loading ? "..." : completedCount}
-                </p>
+                {loading ? (
+                  <Skeleton className="h-6 w-12" />
+                ) : (
+                  <p className="text-2xl font-semibold text-muted-foreground">{completedCount}</p>
+                )}
               </CardContent>
             </Card>
 
-
+            {/* Tasks Assigned */}
             <Card>
               <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle>Tasks Assigned</CardTitle>
                 <ClipboardListIcon className="w-5 h-5 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <p className="text-2xl font-semibold text-muted-foreground">
-                  {loading ? "..." : taskCount}
-                </p>
+                {loading ? (
+                  <Skeleton className="h-6 w-12" />
+                ) : (
+                  <p className="text-2xl font-semibold text-muted-foreground">{taskCount}</p>
+                )}
               </CardContent>
             </Card>
 
+            {/* Analytics */}
             <Card>
               <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle>Analytics</CardTitle>
                 <BarChart3Icon className="w-5 h-5 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <p className="text-muted-foreground text-sm">Coming soon</p>
+                {loading ? (
+                  <Skeleton className="h-4 w-28" />
+                ) : (
+                  <p className="text-muted-foreground text-sm">Coming soon</p>
+                )}
               </CardContent>
             </Card>
           </div>
+
 
           {userCount === 0 && !loading && (
             <div className="border rounded p-6 text-center text-muted-foreground bg-muted/40">

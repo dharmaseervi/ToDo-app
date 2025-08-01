@@ -4,6 +4,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/providers";
 import { Toaster } from "@/components/ui/sonner";
+import { AdminNotificationListener } from "@/components/AdminNotificationListener";
 
 
 
@@ -29,8 +30,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <head>
+        <script src="https://js.pusher.com/beams/2.1.0/push-notifications-cdn.js"></script>
+      </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <Providers>
+          <AdminNotificationListener />
           {children}
           <Toaster />
         </Providers>

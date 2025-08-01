@@ -7,6 +7,7 @@ import { format, isToday, isPast, differenceInHours } from "date-fns"
 import { toast } from "sonner"
 import { socket } from "../../../socket"
 
+
 interface Todo {
   id: number
   title: string
@@ -76,19 +77,26 @@ export default function UserTodosPage() {
     }
   }
 
-  const handleToggleComplete = async (id: number, currentStatus: boolean) => {
+  const handleToggleComplete = async (todo: Todo) => {
     try {
-      await fetch(`/api/users/todos/${id}`, {
+      await fetch(`/api/users/todos/${todo.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ completed: !currentStatus }),
+        body: JSON.stringify({ completed: !todo.completed }),
       })
 
-
-      socket.emit("task:completed", {
-        todoId: id,
-        message: `User completed task ID ${id}`
-      });
+      if (!todo.completed) {
+        // Send real-time event only if task is being marked complete
+        await fetch("/api/task", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            todoId: todo.id,
+            message: `"${todo.title}" marked as completed by user.`,
+            title: todo.title,
+          }),
+        })
+      }
 
       fetchTodos()
     } catch (err) {
@@ -150,11 +158,12 @@ export default function UserTodosPage() {
                     <Button
                       size="sm"
                       variant="secondary"
-                      onClick={() => handleToggleComplete(todo.id, todo.completed)}
+                      onClick={() => handleToggleComplete(todo)}
                       disabled={todo.completed}
                     >
                       {todo.completed ? "Mark Incomplete" : "Mark Complete"}
                     </Button>
+
                   </div>
                 </div>
               </div>
