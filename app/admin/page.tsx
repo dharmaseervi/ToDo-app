@@ -57,7 +57,6 @@ export default function Page() {
 
   return (
     <>
-   
       <AppSidebar variant="inset" />
       <SidebarInset>
         <SiteHeader />

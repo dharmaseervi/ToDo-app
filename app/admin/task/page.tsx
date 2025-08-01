@@ -6,6 +6,8 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { CalendarIcon, CheckCircle2, XCircle } from "lucide-react"
 import { Skeleton } from "@/components/ui/skeleton"
+import { AppSidebar } from "@/components/app-sidebar"
+import { SidebarTrigger } from "@/components/ui/sidebar"
 
 interface Task {
   id: number
@@ -75,91 +77,96 @@ export default function Task() {
   };
 
   return (
-    <div className="max-w-4xl p-6">
-      <h3 className="text-2xl font-semibold mb-6">Assigned Tasks</h3>
+    <>
 
-      <div className="flex gap-2 mb-4">
-        <Button variant={filter === "all" ? "default" : "outline"} onClick={() => setFilter("all")}>All</Button>
-        <Button variant={filter === "completed" ? "default" : "outline"} onClick={() => setFilter("completed")}>Completed</Button>
-        <Button variant={filter === "incomplete" ? "default" : "outline"} onClick={() => setFilter("incomplete")}>Incomplete</Button>
-        <Button variant={"outline"} onClick={handleExport}>Export Tasks (CSV)</Button>
 
-      </div>
+      <div className="max-w-4xl p-6">
+        <SidebarTrigger className="-ml-1" />
+        <h3 className="text-2xl font-semibold mb-6">Assigned Tasks</h3>
 
-      {loading ? (
-        <div className="grid gap-4">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="rounded-2xl border p-5 shadow-sm bg-white space-y-3">
-              <Skeleton className="h-4 w-1/3" />
-              <Skeleton className="h-4 w-full" />
-              <Skeleton className="h-3 w-2/3" />
-              <div className="flex justify-between items-center pt-2">
-                <Skeleton className="h-6 w-24 rounded-full" />
-                <Skeleton className="h-4 w-32" />
-              </div>
-            </div>
-          ))}
+        <div className="flex gap-2 mb-4">
+          <Button variant={filter === "all" ? "default" : "outline"} onClick={() => setFilter("all")}>All</Button>
+          <Button variant={filter === "completed" ? "default" : "outline"} onClick={() => setFilter("completed")}>Completed</Button>
+          <Button variant={filter === "incomplete" ? "default" : "outline"} onClick={() => setFilter("incomplete")}>Incomplete</Button>
+          <Button variant={"outline"} onClick={handleExport}>Export Tasks (CSV)</Button>
+
         </div>
-      ) : filteredTasks.length === 0 ? (
-        <p className="text-center text-muted-foreground">No tasks found for selected filter.</p>
-      ) : (
-        <div className="grid gap-4">
-          {filteredTasks.map((task) => (
-            <div
-              key={task.id}
-              className="rounded-2xl border p-5 shadow-sm bg-white hover:shadow-md transition"
-            >
-              <div className="flex justify-between items-start">
-                <div>
-                  <h4 className="text-lg font-semibold mb-1">{task.title}</h4>
-                  <p className="text-sm text-muted-foreground mb-2">{task.description}</p>
+
+        {loading ? (
+          <div className="grid gap-4">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="rounded-2xl border p-5 shadow-sm bg-white space-y-3">
+                <Skeleton className="h-4 w-1/3" />
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-3 w-2/3" />
+                <div className="flex justify-between items-center pt-2">
+                  <Skeleton className="h-6 w-24 rounded-full" />
+                  <Skeleton className="h-4 w-32" />
                 </div>
-                <Badge
-                  variant={task.completed ? "default" : "outline"}
-                  className={`text-xs px-3 py-1 rounded-full ${task.completed
-                    ? "bg-green-500 hover:bg-green-600 text-white"
-                    : "bg-red-100 text-red-600 border border-red-300"
-                    }`}
-                >
-                  <div className="flex items-center gap-1">
-                    {task.completed ? (
-                      <>
-                        <CheckCircle2 className="h-4 w-4" />
-                        Completed
-                      </>
-                    ) : (
-                      <>
-                        <XCircle className="h-4 w-4" />
-                        Incomplete
-                      </>
-                    )}
+              </div>
+            ))}
+          </div>
+        ) : filteredTasks.length === 0 ? (
+          <p className="text-center text-muted-foreground">No tasks found for selected filter.</p>
+        ) : (
+          <div className="grid gap-4">
+            {filteredTasks.map((task) => (
+              <div
+                key={task.id}
+                className="rounded-2xl border p-5 shadow-sm bg-white hover:shadow-md transition"
+              >
+                <div className="flex justify-between items-start">
+                  <div>
+                    <h4 className="text-lg font-semibold mb-1">{task.title}</h4>
+                    <p className="text-sm text-muted-foreground mb-2">{task.description}</p>
                   </div>
-                </Badge>
+                  <Badge
+                    variant={task.completed ? "default" : "outline"}
+                    className={`text-xs px-3 py-1 rounded-full ${task.completed
+                      ? "bg-green-500 hover:bg-green-600 text-white"
+                      : "bg-red-100 text-red-600 border border-red-300"
+                      }`}
+                  >
+                    <div className="flex items-center gap-1">
+                      {task.completed ? (
+                        <>
+                          <CheckCircle2 className="h-4 w-4" />
+                          Completed
+                        </>
+                      ) : (
+                        <>
+                          <XCircle className="h-4 w-4" />
+                          Incomplete
+                        </>
+                      )}
+                    </div>
+                  </Badge>
 
 
-              </div>
-              <div className=" flex justify-end">
-                <Button
-                  size="sm"
-                  variant="destructive"
-                  onClick={() => handleDelete(task.id)}
-                >
-                  Delete
-                </Button>
-              </div>
-              {task.dueDate && (
-                <div className="mt-4 flex items-center gap-2 text-sm text-muted-foreground">
-                  <CalendarIcon className="h-4 w-4" />
-                  <span>Due: {format(new Date(task.dueDate), "PPP")}</span>
                 </div>
-              )}
+                <div className=" flex justify-end">
+                  <Button
+                    size="sm"
+                    variant="destructive"
+                    onClick={() => handleDelete(task.id)}
+                  >
+                    Delete
+                  </Button>
+                </div>
+                {task.dueDate && (
+                  <div className="mt-4 flex items-center gap-2 text-sm text-muted-foreground">
+                    <CalendarIcon className="h-4 w-4" />
+                    <span>Due: {format(new Date(task.dueDate), "PPP")}</span>
+                  </div>
+                )}
 
 
 
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </>
   )
 }

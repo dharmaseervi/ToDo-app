@@ -9,6 +9,7 @@ import { format } from "date-fns"
 import { cn } from "@/lib/utils"
 import { Command, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
 import { ChevronDown } from "lucide-react"
+import { SidebarTrigger } from '@/components/ui/sidebar'
 interface User {
     id: number
     email: string
@@ -71,6 +72,7 @@ function CreateQuickTask() {
 
     return (
         <div className="p-6 max-w-3xl mx-auto">
+            <SidebarTrigger className="-ml-1" />
             <h2 className="text-xl font-semibold mb-4">Create Task</h2>
             <form onSubmit={handleSubmit} className="space-y-4 mb-6">
                 <Input
