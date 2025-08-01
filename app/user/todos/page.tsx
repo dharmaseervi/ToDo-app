@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { format, isToday, isPast, differenceInHours } from "date-fns"
 import { toast } from "sonner"
 import { socket } from "../../../socket"
+import { Input } from "@/components/ui/input"
 
 
 interface Todo {
@@ -19,37 +20,8 @@ interface Todo {
 export default function UserTodosPage() {
   const [todos, setTodos] = useState<Todo[]>([])
   const [filter, setFilter] = useState<"all" | "completed" | "incomplete">("all")
-  const [isConnected, setIsConnected] = useState(false);
-  const [transport, setTransport] = useState("N/A");
+  const [selectedTaskIds, setSelectedTaskIds] = useState<number[]>([]);
 
-
-  useEffect(() => {
-    if (socket.connected) {
-      onConnect();
-    }
-
-    function onConnect() {
-      setIsConnected(true);
-      setTransport(socket.io.engine.transport.name);
-
-      socket.io.engine.on("upgrade", (transport) => {
-        setTransport(transport.name);
-      });
-    }
-
-    function onDisconnect() {
-      setIsConnected(false);
-      setTransport("N/A");
-    }
-
-    socket.on("connect", onConnect);
-    socket.on("disconnect", onDisconnect);
-
-    return () => {
-      socket.off("connect", onConnect);
-      socket.off("disconnect", onDisconnect);
-    };
-  }, []);
 
 
   useEffect(() => {
@@ -108,6 +80,33 @@ export default function UserTodosPage() {
     filter === "all" ? true : filter === "completed" ? todo.completed : !todo.completed
   )
 
+  const toggleSelect = (id: number) => {
+    setSelectedTaskIds((prev) =>
+      prev.includes(id) ? prev.filter((tid) => tid !== id) : [...prev, id]
+    );
+  };
+
+  const bulkUpdateStatus = async (completed: boolean) => {
+    try {
+      await fetch("/api/users/todos/bulk-update", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ids: selectedTaskIds,
+          completed,
+        }),
+      });
+
+      toast.success(`Updated ${selectedTaskIds.length} todos`);
+      setSelectedTaskIds([]);
+      fetchTodos();
+    } catch (err) {
+      console.error("Bulk update failed:", err);
+      toast.error("Failed to update todos.");
+    }
+  };
+
+
   return (
     <div className="max-w-3xl mx-auto p-6">
       <h2 className="text-2xl font-bold mb-6">My Tasks</h2>
@@ -125,6 +124,22 @@ export default function UserTodosPage() {
         ))}
       </div>
 
+      {selectedTaskIds.length > 0 && (
+        <div className="flex gap-3 mb-4">
+          <Button
+            variant="outline"
+            onClick={() => bulkUpdateStatus(true)}
+            className=""
+            disabled={selectedTaskIds.length === 0}
+          >
+            Mark Selected complete
+          </Button>
+          <Button variant="destructive" onClick={() => bulkUpdateStatus(false)}>
+            Mark Selected Incomplete
+          </Button>
+        </div>
+      )}
+
       {/* Task List */}
       {filteredTodos.length === 0 ? (
         <p className="text-muted-foreground">No todos found for selected filter.</p>
@@ -136,7 +151,14 @@ export default function UserTodosPage() {
 
             return (
               <div key={todo.id} className="border p-4 rounded-xl shadow-sm bg-white">
+                <Input
+                  type="checkbox"
+                  checked={selectedTaskIds.includes(todo.id)}
+                  onChange={() => toggleSelect(todo.id)}
+                  className="mr-2 my-2 w-4 h-4"
+                />
                 <div className="flex justify-between items-start">
+
                   <div>
                     <h4 className="font-semibold">{todo.title}</h4>
                     <p className="text-sm text-muted-foreground">{todo.description}</p>
@@ -163,6 +185,7 @@ export default function UserTodosPage() {
                     >
                       {todo.completed ? "Mark Incomplete" : "Mark Complete"}
                     </Button>
+
 
                   </div>
                 </div>

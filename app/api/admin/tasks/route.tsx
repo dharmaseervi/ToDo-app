@@ -1,20 +1,34 @@
 import { NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { todos } from '@/app/drizzle/schema'
-import { eq } from 'drizzle-orm'
+import { eq, sql } from 'drizzle-orm'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 
-export async function GET() {
+export async function GET(request: Request) {
     const session = await getServerSession(authOptions)
 
     if (!session?.user || session.user.role !== 'admin') {
         return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 403 })
     }
+   
+    const { searchParams } = new URL(request.url)
+    const query = searchParams.get("q")?.trim()
 
+    let todosResult
 
-    const userTodos = await db.select().from(todos)
-    return NextResponse.json({ todos: userTodos })
+    if (query) {
+        // Full-text search
+        const result = await db.execute(
+            sql`SELECT * FROM todos WHERE to_tsvector('english', title || ' ' || description) @@ plainto_tsquery(${query})`
+        )
+        todosResult = result.rows
+    } else {
+        // Regular fetch
+        todosResult = await db.select().from(todos)
+    }
+
+    return NextResponse.json({ todos: todosResult })
 }
 
 export async function POST(req: Request) {
